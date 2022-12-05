@@ -1,0 +1,20 @@
+{
+  "name": "events-documentation-site",
+  "version": "0.0.0",
+  "private": true,
+  "license": "GPL-2.0-or-later",
+  "scripts": {
+    "clean": "rimraf build .cache",
+    "build": "antora --stacktrace --fetch --clean antora-playbook.yml"
+  },
+  "devDependencies": {
+    "@asciidoctor/tabs": "1.0.0-alpha.7",
+    "antora": "3.1.1",
+    "asciidoctor-kroki": "0.16.0",
+    "rimraf": "~3.0.2"
+  },
+  "dependencies": {
+    "@antora/lunr-extension": "^1.0.0-alpha.8",
+    "asciidoctor-plantuml": "^1.5.0"
+  }
+}

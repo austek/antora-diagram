@@ -1,0 +1,10 @@
+name: event-service
+title: Event Service
+version: 0.0.1
+asciidoc:
+  attributes:
+    project-name: event-service
+    project-display-name: Event Service
+    pulsar_version: 2.10.0
+nav:
+- modules/ROOT/nav.adoc

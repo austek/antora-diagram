@@ -1,0 +1,88 @@
+= Overview
+
+This sample e-commerce project is to showcase usage and capabilities of {project-display-name}.
+
+[plantuml,order,png]
+....
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+HIDE_STEREOTYPE()
+skinparam linetype ortho
+
+AddElementTag("backup", $fontColor="orange")
+
+AddRelTag("backup", $textColor="orange", $lineColor="orange", $lineStyle = DashedLine())
+
+Person(user, "user")
+System_Boundary(c1, "Order System") {
+  Container(orderService, "Order Service")
+  Container(stockService, "Stock Service")
+  Container(paymentService, "Payment Service")
+  Boundary(eventServiceBoundary, "Event Service") {
+    Component(orderOutTopic, "/topics/orders")
+    Component(stockOutTopic, "/topics/stock")
+    Component(paymentOutTopic, "/topics/payments")
+  }
+}
+
+Rel_R(user, orderService, "order")
+Rel_U(orderService, orderOutTopic, "State: Pending", "NewOrderEvent")
+Rel(paymentOutTopic, orderService, "PaymentCompleteEvent", $tags="backup")
+Rel(orderService, user, "State: Completed", "OrderCompleteEvent", $tags="backup")
+Rel(orderOutTopic, stockService, "ReserveStockEvent", $tags="backup")
+Rel_U(stockService, stockOutTopic, "StockReservedEvent")
+Rel(stockOutTopic, paymentService, "ProcessPaymentEvent", $tags="backup")
+Rel_U(paymentService, paymentOutTopic, "PaymentCompleteEvent")
+@enduml
+....
+
+
+
+
+[plantuml,order_sequence,png]
+....
+@startuml
+
+actor User as user
+box "Ordering System"
+boundary "API" as api
+control "Order Service" as orderService
+queue "stock.reserve" as reserveStockTopic
+control "Stock Service" as stockService
+queue "payment.process" as processPaymentTopic
+control "Payment Service" as paymentService
+queue "order.completed" as completeOrderTopic
+end box
+
+user -> api
+
+api -> orderService: start a new order
+orderService -> orderService: startNewOrder()
+orderService -> reserveStockTopic: reserve stock
+reserveStockTopic -> stockService
+stockService -> stockService: reserveStock()
+stockService -> processPaymentTopic: process payment
+processPaymentTopic -> paymentService
+paymentService -> paymentService: processPayment()
+paymentService -> completeOrderTopic: order complete
+completeOrderTopic -> orderService
+
+@enduml
+....
+
+== Build
+
+== Run
+
+== Test
+
+== Future Considerations
+
+* Authentication
+* How the tenant/namespace/topic are configured
+* Explain some corner cases without code
+* system should be executable, a user should be able see messages emitted and consumed by each service
+* Make processing slower, so messages can be observed by a human
+* Include functions, in future!!
+* Show difference between a stream and queue
+* Batch consumers?
