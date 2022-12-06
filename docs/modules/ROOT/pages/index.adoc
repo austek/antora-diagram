@@ -2,7 +2,7 @@
 
 This sample e-commerce project is to showcase usage and capabilities of {project-display-name}.
 
-[plantuml,order,png]
+[plantuml,order_1,png]
 ....
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
@@ -36,7 +36,39 @@ Rel_U(paymentService, paymentOutTopic, "PaymentCompleteEvent")
 @enduml
 ....
 
+[plantuml,order_2,png]
+....
+@startuml
+!include <C4/C4_Component.puml>
+HIDE_STEREOTYPE()
+skinparam linetype ortho
 
+AddElementTag("backup", $fontColor="orange")
+
+AddRelTag("backup", $textColor="orange", $lineColor="orange", $lineStyle = DashedLine())
+
+Person(user, "user")
+System_Boundary(c1, "Order System") {
+  Container(orderService, "Order Service")
+  Container(stockService, "Stock Service")
+  Container(paymentService, "Payment Service")
+  Boundary(eventServiceBoundary, "Event Service") {
+    Component(orderOutTopic, "/topics/orders")
+    Component(stockOutTopic, "/topics/stock")
+    Component(paymentOutTopic, "/topics/payments")
+  }
+}
+
+Rel_R(user, orderService, "order")
+Rel_U(orderService, orderOutTopic, "State: Pending", "NewOrderEvent")
+Rel(paymentOutTopic, orderService, "PaymentCompleteEvent", $tags="backup")
+Rel(orderService, user, "State: Completed", "OrderCompleteEvent", $tags="backup")
+Rel(orderOutTopic, stockService, "ReserveStockEvent", $tags="backup")
+Rel_U(stockService, stockOutTopic, "StockReservedEvent")
+Rel(stockOutTopic, paymentService, "ProcessPaymentEvent", $tags="backup")
+Rel_U(paymentService, paymentOutTopic, "PaymentCompleteEvent")
+@enduml
+....
 
 
 [plantuml,order_sequence,png]
